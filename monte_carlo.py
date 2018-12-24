@@ -1,6 +1,7 @@
 import Equation as eq
 import random
 import functools
+import argparse
 
 class Equation(eq.Expression):
     def integral(self,*args,**kwargs): return integral(self,*args,**kwargs)
@@ -18,4 +19,6 @@ def integral(expr, domain, seed = random.uniform, N=5000):
     return getVolume() * sum([expr(*getPoint()) for _ in range(N)])/N
 
 if __name__ == "__main__":
-    print(Equation("x^2 + y^2 -10").integral([(-1,1),(-1,1)]))
+    parser = argparse.ArgumentParser(description='') # TODO: add description
+    parser.add_argument()
+    args = parser.parse_args();
