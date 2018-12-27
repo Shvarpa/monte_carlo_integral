@@ -1,6 +1,5 @@
 from monte_carlo import Equation, prod, sub
 import matplotlib.pyplot as pyplot
-import matplotlib.animation as animation
 import random
 pyplot.ion()
 
@@ -61,6 +60,5 @@ def plot(expr, domain, seed = random.uniform, N=5000, update_intervals =100):
         plot.update_plot({'x':x,'y':y,'itg':itg})
 
     print(f"integal of {repr(expr)} between {','.join(str(d) for d in domain)} = {itg}")
-    pyplot.show()
-
+    pyplot.pause(10)
 plot(Equation("x^2 -2"),[(-3,3)])
