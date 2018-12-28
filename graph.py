@@ -4,10 +4,13 @@ import matplotlib.pyplot as pyplot
 import matplotlib.animation as animation
 import random
 
+pyplot.style.use('grayscale')
 
 def plot(expr, domain, seed = random.uniform, N=5000):
 
     fig, (ax1, ax2) = pyplot.subplots(1,2)
+    ax1.set_title(repr(expr))
+    ax2.set_title(f"integral of {repr(expr)} between {','.join(str(d) for d in domain)}")
     fun = ax1.scatter([],[],s=0.1,animated = True)
     monte, = ax2.plot([],animated = True)
 
@@ -37,7 +40,6 @@ def plot(expr, domain, seed = random.uniform, N=5000):
         return fun, monte
 
     def update(frame):
-        # print("post:",*("{0}:{1}".format(str(k),str(data[k])) for k in frame))
         for key in frame: data[key].append(frame[key]) 
         for key in frame: update_dom(key,frame[key])
         fun.set_offsets(np.c_[data['x'],data['y']])
@@ -60,7 +62,6 @@ def plot(expr, domain, seed = random.uniform, N=5000):
     
     ani = animation.FuncAnimation(fig, update, frames_gen, blit=True, init_func=init,interval=1,repeat=False)
     pyplot.show()
-    print("done")
 
     
 plot(Equation("x^2 -2"),[(-3,3)])
