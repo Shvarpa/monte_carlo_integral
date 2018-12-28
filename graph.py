@@ -13,9 +13,9 @@ def plot(expr, domain, seed = random.uniform, N=5000):
 
     data = {'x':[],'y':[],'i':[],'itg':[]}
     doms = {'x':domain[0],'y':(-1,1),'i':(0,10),'itg':(-1,1)}
-    def update_dom(dom,dat,update_push=np.exp(-1)):
-        if(dat<doms[dom][0]): doms[dom] = (2*dat,doms[dom][1])
-        elif(doms[dom][1]<dat): doms[dom] = (doms[dom][0],2*dat)
+    def update_dom(dom,dat,dom_update=np.exp(0.5)):
+        if(dat<doms[dom][0]): doms[dom] = (dom_update*dat,doms[dom][1])
+        elif(doms[dom][1]<dat): doms[dom] = (doms[dom][0],dom_update*dat)
         else: return
         update_dom_fig(dom)
     def update_dom_fig(dom):
