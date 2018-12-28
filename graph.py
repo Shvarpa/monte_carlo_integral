@@ -1,64 +1,66 @@
 from monte_carlo import Equation, prod, sub
+import numpy as np
 import matplotlib.pyplot as pyplot
+import matplotlib.animation as animation
 import random
-pyplot.ion()
 
-class DynamicPlot:
-    def __init__(self, updateInterval):
-        self.data = {
-            'x':[],
-            'y':[],
-            'itg':[]
-        }
-        self.size = 0.5
-        self.counter=0
-        self.updateInterval = updateInterval
-        self.fig = pyplot.figure()
-        self.ax1 = self.fig.add_subplot(121)
-        self.ax1.scatter([],[])
-        self.ax1.set_autoscaley_on(True)
-        # if bounds: self.ax1.set_xlim(*bounds[0])
-        pyplot.xlabel("x")
-        pyplot.ylabel("y")
 
-        self.ax2 = pyplot.subplot(122)
-        self.ax2.plot([])
-        pyplot.xlabel("הצרטיא רפסמ")
-        pyplot.ylabel("שחונמ לרגטניא")
-        pyplot.tight_layout()
+def plot(expr, domain, seed = random.uniform, N=5000):
 
-    def update_plot(self,data):
-        for key in data: self.data[key].append(data[key])
-        self.counter+=1
-        if(self.counter == self.updateInterval):
-            self.replot()
-            self.counter=0
+    fig, (ax1, ax2) = pyplot.subplots(1,2)
+    fun = ax1.scatter([],[],s=0.1,animated = True)
+    monte, = ax2.plot([],animated = True)
+
+    data = {'x':[],'y':[],'i':[],'itg':[]}
+    doms = {'x':domain[0],'y':(-1,1),'i':(0,10),'itg':(-1,1)}
+    def update_dom(dom,dat,update_push=np.exp(-1)):
+        if(dat<doms[dom][0]): doms[dom] = (2*dat,doms[dom][1])
+        elif(doms[dom][1]<dat): doms[dom] = (doms[dom][0],2*dat)
+        else: return
+        update_dom_fig(dom)
+    def update_dom_fig(dom):
+        {
+            'x':   lambda: ax1.set_xlim(*doms[dom]),
+            'y':   lambda: ax1.set_ylim(*doms[dom]),
+            'i':   lambda: ax2.set_xlim(*doms[dom]),
+            'itg': lambda: ax2.set_ylim(*doms[dom])
+        }[dom]()
+        {
+            'y':lambda: ax1.figure.canvas.draw(),
+            'x': lambda: ax1.figure.canvas.draw(),
+            'i':lambda: ax2.figure.canvas.draw(),
+            'itg': lambda: ax2.figure.canvas.draw()
+        }[dom]()
         
+    def init():
+        for k in doms: update_dom_fig(k)
+        return fun, monte
 
-    def replot(self):
-        self.ax1.clear()
-        self.ax2.clear()
-        self.ax1.scatter(self.data['x'],self.data['y'],self.size)
-        self.ax2.plot(self.data['itg'])
-        pyplot.pause(1e-17)
+    def update(frame):
+        # print("post:",*("{0}:{1}".format(str(k),str(data[k])) for k in frame))
+        for key in frame: data[key].append(frame[key]) 
+        for key in frame: update_dom(key,frame[key])
+        fun.set_offsets(np.c_[data['x'],data['y']])
+        monte.set_data(data['i'],data['itg'])
+        return fun, monte
 
+    def frames_gen():
+        getPoint = lambda : tuple(seed(*d) for d in domain)
+        getVolume = lambda : prod(*[abs(sub(*d)) for d in domain])
+        guess_sum = 0
+        vol = getVolume()
+        for i in range(N):
+            x = getPoint()
+            y = expr(*x)
+            g = guess_sum = guess_sum + y
+            itg = vol * g / (i+1)
+            yield {'x':x[0],'y':y,'i':i,'itg':itg}
         
+        print(f"integal of {repr(expr)} between {','.join(str(d) for d in domain)} = {itg}")
+    
+    ani = animation.FuncAnimation(fig, update, frames_gen, blit=True, init_func=init,interval=1,repeat=False)
+    pyplot.show()
+    print("done")
 
-
-def plot(expr, domain, seed = random.uniform, N=5000, update_intervals =100):
-    getPoint = lambda : tuple(seed(*d) for d in domain)
-    getVolume = lambda : prod(*[abs(sub(*d)) for d in domain])
-    guess_sum = 0
-    vol = getVolume()
-
-    plot = DynamicPlot(update_intervals)
-    for i in range(N):
-        x = getPoint()
-        y = expr(*x)
-        g = guess_sum = guess_sum + y
-        itg = vol * g / (i+1)
-        plot.update_plot({'x':x,'y':y,'itg':itg})
-
-    print(f"integal of {repr(expr)} between {','.join(str(d) for d in domain)} = {itg}")
-    pyplot.pause(10)
+    
 plot(Equation("x^2 -2"),[(-3,3)])
