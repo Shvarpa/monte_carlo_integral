@@ -63,5 +63,5 @@ def plot(expr, domain, seed = random.uniform, N=5000):
     ani = animation.FuncAnimation(fig, update, frames_gen, blit=True, init_func=init,interval=1,repeat=False)
     pyplot.show()
 
-    
-plot(Equation("x^2 -2"),[(-3,3)])
+if __name__=="__main__":
+    plot(Equation("x^2 -2"),[(-3,3)])
