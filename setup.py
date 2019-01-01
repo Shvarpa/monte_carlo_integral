@@ -11,12 +11,12 @@ setuptools.setup(
     name='monte_carlo',
     version='0.1',
     packages=setuptools.find_packages(exclude=['test']),
-    # url='https://github.com/Shvarpa/BibFast',
+    url='https://github.com/Shvarpa/monte_carlo_integral',
     license='',
     author='Shvarpa',
     author_email='Shvarpa@gmail.com',
     description='monte carlo integration',
     long_description = l_description,
-    install_requires=['Equation'],
+    install_requires=['Equation','numpy','matplotlib'],
 	scripts=['monte_carlo.py']
 )
