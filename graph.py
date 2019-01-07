@@ -6,7 +6,13 @@ import random
 
 pyplot.style.use('grayscale')
 
-def plot(expr, domain, seed = random.uniform, N=5000):
+def plot(expr, domain, seed = random.uniform, N=1000):
+    """
+    exper = function(x)->[-inf,inf] for which we'd like to integrate over the domain
+    domain = a list containing the integration domain ie: [(-5,5)]
+    seed = function(a,b)->[a,b] returns a random number between a,b
+    N = iteration count
+    """
 
     fig, (ax1, ax2) = pyplot.subplots(1,2)
     ax1.set_title(repr(expr))
@@ -38,14 +44,12 @@ def plot(expr, domain, seed = random.uniform, N=5000):
     def init():
         for k in doms: update_dom_fig(k)
         return fun, monte
-
     def update(frame):
         for key in frame: data[key].append(frame[key]) 
         for key in frame: update_dom(key,frame[key])
         fun.set_offsets(np.c_[data['x'],data['y']])
         monte.set_data(data['i'],data['itg'])
         return fun, monte
-
     def frames_gen():
         getPoint = lambda : tuple(seed(*d) for d in domain)
         getVolume = lambda : prod(*[abs(sub(*d)) for d in domain])
@@ -57,11 +61,14 @@ def plot(expr, domain, seed = random.uniform, N=5000):
             g = guess_sum = guess_sum + y
             itg = vol * g / (i+1)
             yield {'x':x[0],'y':y,'i':i,'itg':itg}
-        
         print(f"integal of {repr(expr)} between {','.join(str(d) for d in domain)} = {itg}")
     
-    ani = animation.FuncAnimation(fig, update, frames_gen, blit=True, init_func=init,interval=1,repeat=False)
+    ani = animation.FuncAnimation(fig, update, frames_gen,
+                blit=True,interval=1, init_func=init,repeat=False,save_count=N)
+    # ani.save("anim.gif",writer="imagemagick",fps=30)
     pyplot.show()
 
 if __name__=="__main__":
-    plot(Equation("x^2 -2"),[(-3,3)])
+    # f = lambda x:x**2
+    # plot(f,[(1,2)])
+    plot(Equation("sin(x^2) -2"),[(-3,3)])

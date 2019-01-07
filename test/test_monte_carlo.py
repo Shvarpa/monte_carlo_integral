@@ -1,17 +1,19 @@
 import unittest
 from monte_carlo import Equation
 epsilon = 2
+N = 5000
+
 class MonteCarloIntegration(unittest.TestCase):
     def test_integral(self):
-        integral = Equation("x^2").integral([(1,3)])
+        integral = Equation("x^2").integral([(1,3)],N=N)
         expected = 26/3
         self.assertAlmostEqual(integral,expected,delta=epsilon)
  
-        integral = Equation("x^2 + y^2 -10").integral([(-1,1),(-1,1)])
+        integral = Equation("x^2 + y^2 -10").integral([(-1,1),(-1,1)],N=N)
         expected = -112/3
         self.assertAlmostEqual(integral,expected,delta=epsilon)
 
-        integral = Equation("2*x^2 + 2*y^2 -1").integral([(-1,3),(-3,1)])
+        integral = Equation("2*x^2 + 2*y^2 -1").integral([(-1,3),(-3,1)],N=N)
         expected = 400/3
         self.assertAlmostEqual(integral,expected,delta=epsilon)
 
